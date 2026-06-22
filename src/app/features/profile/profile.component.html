@@ -1,0 +1,113 @@
+<!-- ไฟล์: src/app/features/profile/profile.component.html -->
+
+<div class="erp-master-shell profile-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-person-circle"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">ACCOUNT CENTER</span>
+          <h1>My Profile</h1>
+          <p>ข้อมูลผู้ใช้ Theme ส่วนตัว และสิทธิ์ที่ได้รับ</p>
+        </div>
+      </div>
+
+      <div class="erp-actions">
+        <button type="button" class="zd-btn ghost" routerLink="/me/change-password">
+          <i class="bi bi-key-fill"></i>
+          Change Password
+        </button>
+        <button type="button" class="zd-btn primary" (click)="load()" [disabled]="loading">
+          <i class="bi bi-arrow-clockwise"></i>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <section class="profile-layout">
+      <aside class="erp-card erp-card-pad profile-card">
+        <div class="profile-cover"></div>
+        <div class="profile-avatar">{{ (me?.fullName || me?.username || 'Z').substring(0, 1).toUpperCase() }}</div>
+        <h2>{{ me?.fullName || '-' }}</h2>
+        <p>{{ me?.email || '-' }}</p>
+
+        <div class="profile-chip-row">
+          <span class="erp-chip">{{ me?.username || '-' }}</span>
+          <span class="erp-chip info">{{ me?.role || '-' }}</span>
+          <span class="erp-chip" [class.ok]="me?.enabled" [class.danger]="!me?.enabled">
+            {{ me?.enabled ? 'Enabled' : 'Disabled' }}
+          </span>
+        </div>
+
+        <div class="profile-meta-grid">
+          <div><span>Last Login</span><strong>{{ me?.lastLoginAt ? (me?.lastLoginAt | date:'yyyy-MM-dd HH:mm') : '-' }}</strong></div>
+          <div><span>Password Updated</span><strong>{{ me?.passwordUpdatedAt ? (me?.passwordUpdatedAt | date:'yyyy-MM-dd HH:mm') : '-' }}</strong></div>
+          <div><span>Theme</span><strong>{{ form.value.themePreset || '-' }}</strong></div>
+          <div><span>Accent</span><strong>{{ form.value.themeAccentColor || '-' }}</strong></div>
+        </div>
+      </aside>
+
+      <div class="profile-main-stack">
+        <form class="erp-card erp-card-pad profile-form" [formGroup]="form" (ngSubmit)="save()">
+          <div class="erp-card-title">
+            <div>
+              <h2>Profile Setting</h2>
+              <span>แก้ไขข้อมูลบัญชีและ Theme ส่วนตัว</span>
+            </div>
+          </div>
+
+          <div class="erp-grid cols-2 compact-form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="fullName" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" />
+            </mat-form-field>
+          </div>
+
+          <div class="erp-grid cols-2 compact-form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Theme Preset</mat-label>
+              <mat-select formControlName="themePreset">
+                <mat-option *ngFor="let option of themeOptions" [value]="option.value">{{ option.label }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Accent Color</mat-label>
+              <input matInput formControlName="themeAccentColor" placeholder="#3366FF" />
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions sticky-actions">
+            <button type="submit" class="zd-btn primary" [disabled]="saving">
+              <i class="bi bi-save2-fill"></i>
+              {{ saving ? 'Saving...' : 'Save Profile' }}
+            </button>
+          </div>
+        </form>
+
+        <section class="erp-card erp-card-pad permissions-card">
+          <div class="erp-card-title">
+            <div>
+              <h2>Effective Permissions</h2>
+              <span>สิทธิ์ที่บัญชีนี้ใช้งานได้ในระบบ</span>
+            </div>
+            <span class="erp-badge info">{{ me?.permissions?.length || 0 }} items</span>
+          </div>
+
+          <div class="permission-token-wrap">
+            <span class="permission-token" *ngFor="let p of me?.permissions">{{ p }}</span>
+            <span class="empty-state mini" *ngIf="!me?.permissions?.length">ยังไม่พบรายการสิทธิ์</span>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<div class="auth-page">
+  <section class="auth-card">
+    <div class="auth-hero">
+      <div class="hero-icon"><i class="bi bi-person-plus-fill"></i></div>
+      <h1>Create Account</h1>
+      <p>ใช้สำหรับระบบเริ่มต้น ถ้าใช้งาน production สามารถปิด register ใน backend ได้</p>
+    </div>
+
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-title"><span>NEW USER</span><h2>สมัครสมาชิก</h2></div>
+
+      <mat-form-field appearance="outline"><mat-label>Full Name</mat-label><input matInput formControlName="fullName"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput formControlName="email"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>ID Card / Employee ID</mat-label><input matInput formControlName="idCard"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Username</mat-label><input matInput formControlName="username"></mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+        <button type="button" mat-button matSuffix (click)="hidePassword = !hidePassword">{{ hidePassword ? 'Show' : 'Hide' }}</button>
+      </mat-form-field>
+
+      <button type="submit" mat-raised-button color="primary" [disabled]="loading">{{ loading ? 'กำลังสมัคร...' : 'Register' }}</button>
+      <a routerLink="/login" class="auth-link">กลับไป Login</a>
+    </form>
+  </section>
+</div>

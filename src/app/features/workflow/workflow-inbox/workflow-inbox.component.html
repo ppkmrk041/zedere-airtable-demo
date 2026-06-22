@@ -1,0 +1,95 @@
+<div class="erp-master-shell workflow-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-inbox-fill"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">ZEDERE WORKFLOW</span>
+          <h1>Workflow Inbox</h1>
+          <p>งานที่รอให้ผู้ใช้ตรวจสอบ อนุมัติ Reject หรือส่งกลับตามสิทธิ์</p>
+        </div>
+      </div>
+
+      <div class="erp-actions">
+        <button type="button" class="zd-btn soft" (click)="load(pageIndex)" [disabled]="loading || actioning">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+    </header>
+
+    <section class="erp-grid kpi-grid">
+      <div class="erp-card erp-kpi-card erp-card-orb"><span>Total</span><strong>{{ total | number }}</strong></div>
+      <div class="erp-card erp-kpi-card erp-card-orb"><span>Open</span><strong>{{ openTaskCount | number }}</strong></div>
+      <div class="erp-card erp-kpi-card erp-card-orb"><span>Claimed</span><strong>{{ claimedTaskCount | number }}</strong></div>
+      <div class="erp-card erp-kpi-card erp-card-orb"><span>Status</span><strong>{{ loading ? 'Loading' : 'Ready' }}</strong></div>
+    </section>
+
+    <section class="erp-card erp-card-pad list-card erp-card-orb">
+      <div class="card-head">
+        <div>
+          <span class="eyebrow">TASK LIST</span>
+          <h2>My pending workflow tasks</h2>
+        </div>
+        <span class="mini-badge">INBOX</span>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert error"><i class="bi bi-exclamation-triangle"></i>{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="alert success"><i class="bi bi-check-circle"></i>{{ successMessage }}</div>
+      <mat-progress-bar *ngIf="loading || actioning" mode="indeterminate"></mat-progress-bar>
+
+      <div class="table-wrap">
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Workflow</th>
+              <th>Current Step</th>
+              <th>Assigned</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let task of tasks">
+              <td>
+                <button type="button" class="link-btn" (click)="open(task)">{{ task.documentNo || ('#' + task.instanceId) }}</button>
+                <small>{{ task.documentTitle || task.documentType || '-' }}</small>
+              </td>
+              <td>
+                <div class="main-text">{{ task.workflowCode || '-' }}</div>
+                <small>{{ task.actionRequired || 'Action required' }}</small>
+              </td>
+              <td>
+                <div class="main-text">{{ task.currentStepName || task.currentStepCode || '-' }}</div>
+                <small>{{ task.currentStepCode || '-' }}</small>
+              </td>
+              <td>
+                <div class="main-text">{{ task.assignedToName || task.assignedRole || '-' }}</div>
+                <small>{{ task.createdAt | date:'yyyy-MM-dd HH:mm' }}</small>
+              </td>
+              <td><span [class]="statusClass(task.taskStatus)">{{ task.taskStatus || '-' }}</span></td>
+              <td class="row-actions text-end">
+                <button type="button" class="mini-btn" title="Detail" (click)="open(task)"><i class="bi bi-eye"></i></button>
+                <button type="button" class="mini-btn accent" title="Approve" (click)="approve(task)" [disabled]="actioning"><i class="bi bi-check2"></i></button>
+                <button type="button" class="mini-btn warn" title="Return" (click)="returnPrevious(task)" [disabled]="actioning"><i class="bi bi-arrow-counterclockwise"></i></button>
+                <button type="button" class="mini-btn danger" title="Reject" (click)="reject(task)" [disabled]="actioning"><i class="bi bi-x-lg"></i></button>
+              </td>
+            </tr>
+            <tr *ngIf="!loading && tasks.length === 0">
+              <td colspan="6" class="empty-cell">ไม่มีงานค้างใน Workflow Inbox</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <mat-paginator
+        [length]="total"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="pageIndex = $event.pageIndex; pageSize = $event.pageSize; load(pageIndex)">
+      </mat-paginator>
+    </section>
+  </div>
+</div>

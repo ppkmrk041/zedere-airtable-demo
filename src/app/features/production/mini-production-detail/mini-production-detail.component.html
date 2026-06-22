@@ -1,0 +1,186 @@
+<div class="erp-master-shell mini-production-detail-page">
+  <header class="erp-master-topbar mini-production-topbar">
+    <div class="erp-title-zone">
+      <button type="button" class="zd-btn ghost" (click)="back()">
+        <i class="bi bi-arrow-left"></i>
+        Back
+      </button>
+
+      <div class="erp-title-icon">
+        <i class="bi bi-clipboard2-pulse-fill"></i>
+      </div>
+
+      <div class="erp-title-copy">
+        <span class="erp-eyebrow">WORK DETAIL</span>
+        <h1>{{ work?.workNo || 'Mini Production Work' }}</h1>
+        <p>{{ work?.productName || 'รายละเอียดใบงานผลิตและ Workflow Timeline' }}</p>
+      </div>
+    </div>
+
+    <div class="erp-actions">
+      <button type="button" class="zd-btn soft" routerLink="/production/mini-board">
+        <i class="bi bi-columns-gap"></i>
+        Board
+      </button>
+      <button type="button" class="zd-btn soft" *ngIf="work?.workflowInstanceId" (click)="openWorkflow()">
+        <i class="bi bi-diagram-3-fill"></i>
+        Workflow
+      </button>
+      <button type="button" class="zd-btn primary" *ngIf="canSubmit()" (click)="submit()" [disabled]="actionLoading">
+        <i class="bi bi-send-fill"></i>
+        Submit
+      </button>
+    </div>
+  </header>
+
+  <div class="erp-container">
+    <div *ngIf="loading" class="erp-card loading-card">
+      <i class="bi bi-hourglass-split"></i>
+      Loading...
+    </div>
+
+    <div *ngIf="errorMessage" class="erp-alert danger">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="erp-alert success">
+      <i class="bi bi-check-circle-fill"></i>
+      {{ successMessage }}
+    </div>
+
+    <ng-container *ngIf="work && !loading">
+      <section class="status-grid">
+        <article class="erp-card status-card">
+          <span>Status</span>
+          <strong class="erp-status large" [ngClass]="statusClass(work.status)">{{ work.status }}</strong>
+        </article>
+        <article class="erp-card status-card">
+          <span>Current Step</span>
+          <strong>{{ work.workflowStepName || work.workflowStepCode || '-' }}</strong>
+        </article>
+        <article class="erp-card status-card">
+          <span>Workflow</span>
+          <strong>{{ work.workflowStatus || '-' }}</strong>
+        </article>
+        <article class="erp-card status-card">
+          <span>Due Date</span>
+          <strong>{{ work.dueDate || '-' }}</strong>
+        </article>
+      </section>
+
+      <section class="erp-card detail-card">
+        <div class="card-title-row">
+          <div>
+            <span class="erp-eyebrow">WORK INFORMATION</span>
+            <h2>ข้อมูลใบงาน</h2>
+          </div>
+          <div class="erp-actions">
+            <button type="button" class="zd-btn ghost" *ngIf="!editMode && canEdit()" (click)="enableEdit()">
+              <i class="bi bi-pencil-square"></i>
+              Edit
+            </button>
+            <button type="button" class="zd-btn soft" (click)="syncWorkflow()" [disabled]="actionLoading || !work.workflowInstanceId">
+              <i class="bi bi-arrow-repeat"></i>
+              Sync Workflow
+            </button>
+            <button type="button" class="zd-btn danger" *ngIf="canCancel()" (click)="cancelWork()" [disabled]="actionLoading">
+              <i class="bi bi-x-circle"></i>
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div class="form-grid" *ngIf="editMode; else readView">
+          <label>
+            <span>Product Code</span>
+            <input class="zd-native-input" [(ngModel)]="form.productCode" autocomplete="off" />
+          </label>
+          <label class="wide">
+            <span>Product Name *</span>
+            <input class="zd-native-input" [(ngModel)]="form.productName" autocomplete="off" />
+          </label>
+          <label>
+            <span>Qty *</span>
+            <input class="zd-native-input" type="number" min="0.001" step="0.001" [(ngModel)]="form.qty" />
+          </label>
+          <label>
+            <span>Unit *</span>
+            <select class="zd-native-input" [(ngModel)]="form.unit">
+              <option *ngFor="let unit of units" [value]="unit">{{ unit }}</option>
+            </select>
+          </label>
+          <label>
+            <span>Line</span>
+            <input class="zd-native-input" [(ngModel)]="form.lineCode" autocomplete="off" />
+          </label>
+          <label>
+            <span>Priority</span>
+            <select class="zd-native-input" [(ngModel)]="form.priority">
+              <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+            </select>
+          </label>
+          <label>
+            <span>Due Date</span>
+            <input class="zd-native-input" type="date" [(ngModel)]="form.dueDate" />
+          </label>
+          <label class="wide">
+            <span>Remark</span>
+            <textarea class="zd-native-input textarea" rows="3" [(ngModel)]="form.remark"></textarea>
+          </label>
+        </div>
+
+        <ng-template #readView>
+          <div class="read-grid">
+            <div><span>Product Code</span><strong>{{ work.productCode || '-' }}</strong></div>
+            <div class="wide"><span>Product Name</span><strong>{{ work.productName }}</strong></div>
+            <div><span>Qty</span><strong>{{ work.qty | number:'1.0-3' }} {{ work.unit }}</strong></div>
+            <div><span>Line</span><strong>{{ work.lineCode || '-' }}</strong></div>
+            <div><span>Priority</span><strong>{{ work.priority }}</strong></div>
+            <div><span>Created By</span><strong>{{ work.createdBy || '-' }}</strong></div>
+            <div class="wide"><span>Remark</span><strong>{{ work.remark || '-' }}</strong></div>
+          </div>
+        </ng-template>
+
+        <div class="form-actions" *ngIf="editMode">
+          <button type="button" class="zd-btn ghost" (click)="cancelEdit()">Cancel</button>
+          <button type="button" class="zd-btn primary" (click)="save()" [disabled]="saving">
+            <i class="bi" [ngClass]="saving ? 'bi-hourglass-split' : 'bi-save'"></i>
+            {{ saving ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </section>
+
+      <section class="erp-card history-card">
+        <div class="card-title-row compact">
+          <div>
+            <span class="erp-eyebrow">TIMELINE</span>
+            <h2>ประวัติใบงาน</h2>
+          </div>
+        </div>
+
+        <div class="timeline" *ngIf="history.length > 0; else emptyHistory">
+          <article class="timeline-item" *ngFor="let h of history">
+            <div class="dot"></div>
+            <div class="timeline-body">
+              <div class="timeline-head">
+                <strong>{{ h.actionName || h.actionCode }}</strong>
+                <span>{{ h.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <p>{{ h.comment || '-' }}</p>
+              <small>
+                {{ h.fromStatus || '-' }} → {{ h.toStatus || '-' }} ·
+                {{ h.fromStepCode || '-' }} → {{ h.toStepCode || '-' }} ·
+                {{ h.actorFullName || h.actorUsername || '-' }}
+              </small>
+            </div>
+          </article>
+        </div>
+
+        <ng-template #emptyHistory>
+          <div class="empty-cell">ยังไม่มีประวัติ</div>
+        </ng-template>
+      </section>
+    </ng-container>
+  </div>
+</div>

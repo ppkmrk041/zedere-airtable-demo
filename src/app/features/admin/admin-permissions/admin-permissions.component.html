@@ -1,0 +1,199 @@
+<!-- ไฟล์: src/app/features/admin/admin-permissions/admin-permissions.component.html -->
+
+<div class="erp-master-shell admin-console-page permission-management-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-shield-lock-fill"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">RBAC CONTROL</span>
+          <h1>Permission Management</h1>
+          <p>Permission Catalog · Role Matrix · User Override</p>
+        </div>
+      </div>
+
+      <div class="erp-actions">
+        <button type="button" class="zd-btn ghost" routerLink="/admin/users">
+          <i class="bi bi-people-fill"></i>
+          User Management
+        </button>
+        <button type="button" class="zd-btn primary" (click)="load()" [disabled]="loading">
+          <i class="bi bi-arrow-clockwise"></i>
+          {{ loading ? 'Loading...' : 'Refresh' }}
+        </button>
+      </div>
+    </header>
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <section class="erp-grid cols-4 admin-kpi-row">
+      <div class="erp-card erp-kpi"><span>Permissions</span><strong>{{ permissions.length }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Roles</span><strong>{{ roles.length }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Selected Role</span><strong>{{ selectedRole }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Override User</span><strong>{{ userOverrides?.username || '-' }}</strong></div>
+    </section>
+
+    <section class="erp-card admin-tab-card">
+      <mat-tab-group animationDuration="180ms">
+        <mat-tab label="Catalog">
+          <div class="tab-stage">
+            <div class="admin-split-grid permission-grid">
+              <div class="erp-card erp-card-pad admin-list-card flat-card">
+                <div class="erp-card-title">
+                  <div>
+                    <h2>Permission List</h2>
+                    <span>รายการสิทธิ์ทั้งหมดของระบบ</span>
+                  </div>
+                  <span class="erp-badge info">{{ permissions.length }} items</span>
+                </div>
+
+                <div class="erp-table-wrap">
+                  <table class="erp-table admin-table compact-table">
+                    <thead>
+                      <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let p of permissions" (click)="selectPermission(p)" [class.active-row]="selectedPermission?.id === p.id">
+                        <td><strong>{{ p.code }}</strong><small>{{ p.systemDefined ? 'SYSTEM' : 'CUSTOM' }}</small></td>
+                        <td>{{ p.name }}</td>
+                        <td><span class="erp-chip">{{ p.categoryName }}</span></td>
+                        <td><span class="erp-chip" [class.ok]="p.active" [class.danger]="!p.active">{{ p.active ? 'Active' : 'Inactive' }}</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <form class="erp-card erp-card-pad admin-edit-card flat-card" [formGroup]="catalogForm" (ngSubmit)="saveCatalog()">
+                <div class="erp-card-title">
+                  <div>
+                    <h2>{{ selectedPermission ? 'Edit Permission' : 'New Permission' }}</h2>
+                    <span>{{ selectedPermission?.code || 'สร้าง permission ใหม่' }}</span>
+                  </div>
+                  <button type="button" class="zd-btn ghost" (click)="newPermission()"><i class="bi bi-plus-lg"></i> New</button>
+                </div>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Code</mat-label>
+                  <input matInput formControlName="code" placeholder="EXAMPLE_VIEW" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Name</mat-label>
+                  <input matInput formControlName="name" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput rows="2" formControlName="description"></textarea>
+                </mat-form-field>
+
+                <div class="erp-grid cols-2 compact-form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Category Key</mat-label>
+                    <input matInput formControlName="categoryKey" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Category Name</mat-label>
+                    <input matInput formControlName="categoryName" />
+                  </mat-form-field>
+                </div>
+
+                <div class="toggle-row">
+                  <mat-slide-toggle formControlName="active">Active</mat-slide-toggle>
+                  <mat-slide-toggle formControlName="systemDefined">System Defined</mat-slide-toggle>
+                </div>
+
+                <div class="form-actions sticky-actions">
+                  <button type="submit" class="zd-btn primary" [disabled]="savingCatalog || !canEditCatalog()">
+                    <i class="bi bi-save2-fill"></i>
+                    {{ savingCatalog ? 'Saving...' : 'Save Catalog' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Role Matrix">
+          <div class="tab-stage">
+            <div class="erp-card erp-card-pad flat-card">
+              <div class="role-toolbar">
+                <div class="role-buttons">
+                  <button *ngFor="let role of ['ADMIN', 'MANAGER', 'USER']" type="button" class="role-pill" [class.active]="selectedRole === role" (click)="pickRole(role)">
+                    {{ role }}
+                  </button>
+                </div>
+
+                <button type="button" class="zd-btn primary" (click)="saveRole()" [disabled]="savingRole || !canEditRole()">
+                  <i class="bi bi-save2-fill"></i>
+                  {{ savingRole ? 'Saving...' : 'Save Role' }}
+                </button>
+              </div>
+
+              <div class="permission-check-grid">
+                <mat-checkbox *ngFor="let p of permissions" [checked]="rolePermissionSet.has(p.code)" (change)="toggleRolePermission(p.code, $event.checked)">
+                  <strong>{{ p.code }}</strong>
+                  <small>{{ p.name }}</small>
+                </mat-checkbox>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="User Override">
+          <div class="tab-stage">
+            <div class="erp-card erp-card-pad flat-card">
+              <div class="override-toolbar">
+                <mat-form-field appearance="outline">
+                  <mat-label>User ID</mat-label>
+                  <input matInput type="number" [(ngModel)]="userId" [ngModelOptions]="{ standalone: true }" />
+                </mat-form-field>
+
+                <button type="button" class="zd-btn ghost" (click)="loadUserOverrides()">
+                  <i class="bi bi-person-check"></i>
+                  Load User
+                </button>
+                <button type="button" class="zd-btn primary" (click)="saveOverrides()" [disabled]="savingOverride || !canEditOverride()">
+                  <i class="bi bi-save2-fill"></i>
+                  {{ savingOverride ? 'Saving...' : 'Save Override' }}
+                </button>
+
+                <span class="erp-badge info" *ngIf="userOverrides">{{ userOverrides.username }} / {{ userOverrides.role }}</span>
+              </div>
+
+              <div class="erp-table-wrap mt-3">
+                <table class="erp-table admin-table compact-table">
+                  <thead>
+                    <tr>
+                      <th>Permission</th>
+                      <th>Name</th>
+                      <th>Override</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let p of permissions">
+                      <td><strong>{{ p.code }}</strong><small>{{ p.categoryName }}</small></td>
+                      <td>{{ p.name }}</td>
+                      <td>
+                        <mat-select class="override-select" [value]="getOverrideValue(p.code)" (selectionChange)="setOverride(p.code, $event.value)">
+                          <mat-option value="INHERIT">INHERIT</mat-option>
+                          <mat-option value="ALLOW">ALLOW</mat-option>
+                          <mat-option value="DENY">DENY</mat-option>
+                        </mat-select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </section>
+  </div>
+</div>

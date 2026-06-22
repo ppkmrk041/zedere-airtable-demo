@@ -1,0 +1,24 @@
+<div class="erp-master-shell main-menu-page ngx-admin-feature-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <div class="erp-title-icon"><i class="bi bi-grid-1x2-fill"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">ZEDERE WORKSPACE</span>
+          <h1>Main Menu</h1>
+          <p>เมนูใช้งานหลักสำหรับทดสอบ Airtable พร้อมระบบ Login, Sidebar, Theme, Permission และ Profile เดิม</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="erp-menu-grid">
+      <a class="erp-card erp-menu-card erp-card-orb" *ngFor="let item of items" [routerLink]="item.route">
+        <div class="erp-menu-icon"><i class="bi" [ngClass]="item.icon"></i></div>
+        <div>
+          <h2>{{ item.title }}</h2>
+          <p>{{ item.subtitle }}</p>
+        </div>
+      </a>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+{
+  "name": "zedere-frontend",
+  "version": "1.0.0",
+  "description": "Professional Angular 16 frontend for Zedere Blackend",
+  "private": true,
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --configuration development",
+    "start:host": "ng serve --host 0.0.0.0 --configuration development",
+    "build": "ng build --configuration production",
+    "build:dev": "ng build --configuration development",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "dependencies": {
+    "@angular/animations": "16.2.12",
+    "@angular/cdk": "16.2.14",
+    "@angular/common": "16.2.12",
+    "@angular/compiler": "16.2.12",
+    "@angular/core": "16.2.12",
+    "@angular/forms": "16.2.12",
+    "@angular/material": "16.2.14",
+    "@angular/platform-browser": "16.2.12",
+    "@angular/platform-browser-dynamic": "16.2.12",
+    "@angular/router": "16.2.12",
+    "bootstrap": "^5.3.5",
+    "bootstrap-icons": "^1.11.3",
+    "jwt-decode": "^4.0.0",
+    "rxjs": "~7.8.1",
+    "sweetalert2": "^11.21.0",
+    "tslib": "^2.6.2",
+    "zone.js": "~0.13.3"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "16.2.16",
+    "@angular/cli": "16.2.16",
+    "@angular/compiler-cli": "16.2.12",
+    "@types/jasmine": "~4.3.0",
+    "jasmine-core": "~4.6.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "typescript": "~5.1.6"
+  }
+}

@@ -1,0 +1,85 @@
+<!-- ไฟล์: src/app/features/admin/audit-logs/audit-logs.component.html -->
+
+<div class="erp-master-shell admin-console-page audit-logs-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-clock-history"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">SYSTEM TRACE</span>
+          <h1>Audit Logs</h1>
+          <p>ประวัติการทำงานของระบบ ใช้ตรวจสอบย้อนหลังและแกะรอยปัญหา</p>
+        </div>
+      </div>
+
+      <div class="erp-actions" [formGroup]="form">
+        <div class="zd-admin-search audit-search">
+          <div class="zd-native-field">
+            <input class="zd-native-input" formControlName="q" autocomplete="off" placeholder="Search action / actor / entity" (keyup.enter)="load(0)" />
+          </div>
+          <button type="button" class="zd-btn primary" (click)="load(0)" [disabled]="loading">
+            <i class="bi bi-search"></i>
+            Search
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <section class="erp-grid cols-4 admin-kpi-row">
+      <div class="erp-card erp-kpi"><span>Total</span><strong>{{ total }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Visible</span><strong>{{ logs.length }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Page</span><strong>{{ pageIndex + 1 }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Mode</span><strong>Trace</strong></div>
+    </section>
+
+    <section class="erp-card erp-card-pad admin-list-card">
+      <div class="erp-card-title">
+        <div>
+          <h2>Activity Timeline</h2>
+          <span>เรียงตามข้อมูลล่าสุดก่อน</span>
+        </div>
+        <span class="erp-badge info">{{ logs.length }} rows</span>
+      </div>
+
+      <div class="erp-table-wrap">
+        <table class="erp-table admin-table compact-table audit-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Action</th>
+              <th>Entity</th>
+              <th>Actor</th>
+              <th>IP</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of logs">
+              <td><strong>{{ row.createdAt | date:'yyyy-MM-dd' }}</strong><small>{{ row.createdAt | date:'HH:mm:ss' }}</small></td>
+              <td><span class="erp-chip info">{{ row.action }}</span></td>
+              <td><strong>{{ row.entityType }}</strong><small>{{ row.entityId || '-' }}</small></td>
+              <td>{{ row.actor || '-' }}</td>
+              <td><code>{{ row.ipAddress || '-' }}</code></td>
+              <td class="note-cell">{{ row.note || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="empty-state" *ngIf="!loading && logs.length === 0">
+          ไม่พบ Audit Log หรือ backend ยังไม่ได้เปิด endpoint audit log
+        </div>
+      </div>
+
+      <mat-paginator
+        [length]="total"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="pageIndex = $event.pageIndex; pageSize = $event.pageSize; load(pageIndex)"
+      ></mat-paginator>
+    </section>
+  </div>
+</div>

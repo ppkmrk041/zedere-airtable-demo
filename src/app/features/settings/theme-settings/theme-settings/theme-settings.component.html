@@ -1,0 +1,167 @@
+<!-- ไฟล์: src/app/features/settings/theme-settings/theme-settings/theme-settings.component.html -->
+
+<div class="erp-master-shell theme-settings-page ngx-admin-feature-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-palette-fill"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">USER SETTINGS</span>
+          <h1>Theme & Appearance</h1>
+          <p>ตั้งค่าหน้าตา สีหลัก และโหมดการแสดงผลของระบบ ERP</p>
+        </div>
+      </div>
+
+      <div class="erp-actions">
+        <button type="button" class="zd-btn ghost" routerLink="/me/profile">
+          <i class="bi bi-person-circle"></i>
+          My Profile
+        </button>
+        <button type="button" class="zd-btn ghost" (click)="resetDefault()" [disabled]="saving">
+          <i class="bi bi-arrow-counterclockwise"></i>
+          Reset
+        </button>
+        <button type="button" class="zd-btn primary" (click)="save()" [disabled]="saving || loading">
+          <span *ngIf="saving" class="spinner-border spinner-border-sm"></span>
+          <i *ngIf="!saving" class="bi bi-save2-fill"></i>
+          {{ saving ? 'Saving...' : 'Save Theme' }}
+        </button>
+      </div>
+    </header>
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <section class="theme-workspace" *ngIf="form">
+      <div class="erp-card erp-card-pad theme-settings-card">
+        <div class="erp-card-title">
+          <div>
+            <h2>Theme Preset</h2>
+            <span>เลือกโทนหลักของระบบให้ตรงกับงาน</span>
+          </div>
+          <span class="erp-badge info">{{ themePresetForSave }}</span>
+        </div>
+
+        <div class="preset-grid">
+          <button
+            type="button"
+            class="preset-card"
+            *ngFor="let item of presets; trackBy: trackByPreset"
+            [class.active]="basePreset === item.basePreset"
+            (click)="selectPreset(item.basePreset)"
+          >
+            <span class="preset-dot" [style.background]="item.accent"></span>
+            <strong>{{ item.label }}</strong>
+            <small>{{ item.description }}</small>
+          </button>
+        </div>
+
+        <div class="setting-section">
+          <div class="erp-card-title slim-title">
+            <div>
+              <h2>Display Mode</h2>
+              <span>Light / Dark สำหรับแต่ละผู้ใช้</span>
+            </div>
+          </div>
+
+          <div class="mode-toggle">
+            <button
+              type="button"
+              *ngFor="let item of modes; trackBy: trackByMode"
+              [class.active]="mode === item.value"
+              (click)="selectMode(item.value)"
+            >
+              <i class="bi" [ngClass]="item.icon"></i>
+              {{ item.label }}
+            </button>
+          </div>
+        </div>
+
+        <form [formGroup]="form" class="setting-section accent-section">
+          <div class="erp-card-title slim-title">
+            <div>
+              <h2>Accent Color</h2>
+              <span>สีหลักของปุ่ม สถานะ และ Highlight</span>
+            </div>
+          </div>
+
+          <div class="color-control-row">
+            <input type="color" formControlName="themeAccentColor" />
+            <input class="erp-input" type="text" formControlName="themeAccentColor" maxlength="7" autocomplete="off" />
+          </div>
+
+          <div class="accent-palette">
+            <button
+              type="button"
+              class="accent-chip"
+              *ngFor="let color of accentOptions; trackBy: trackByColor"
+              [class.active]="accent === color"
+              [style.background]="color"
+              (click)="selectAccent(color)"
+              [attr.aria-label]="color"
+            ></button>
+          </div>
+
+          <div class="invalid-message" *ngIf="form.get('themeAccentColor')?.invalid && form.get('themeAccentColor')?.touched">
+            สีต้องเป็นรูปแบบ #RRGGBB เช่น #3366FF
+          </div>
+        </form>
+      </div>
+
+      <aside class="theme-side-stack">
+        <section class="erp-card erp-card-pad preview-card">
+          <div class="erp-card-title">
+            <div>
+              <h2>Live Preview</h2>
+              <span>ตัวอย่างหน้าจอแบบ ngx-admin ERP</span>
+            </div>
+            <span class="erp-badge ok">LIVE</span>
+          </div>
+
+          <div class="preview-window">
+            <div class="preview-toolbar"><span></span><span></span><span></span></div>
+
+            <div class="preview-content">
+              <div class="preview-title">
+                <div>
+                  <strong>ERP Template</strong>
+                  <small>Professional dashboard preview</small>
+                </div>
+                <button type="button">Action</button>
+              </div>
+
+              <div class="preview-kpis">
+                <div><small>Users</small><strong>128</strong></div>
+                <div><small>API</small><strong>UP</strong></div>
+                <div><small>Theme</small><strong>{{ basePreset }}</strong></div>
+              </div>
+
+              <div class="preview-table">
+                <div class="row head"><span>Module</span><span>Status</span><span>Mode</span></div>
+                <div class="row"><span>Production</span><span class="ok">Ready</span><span>{{ mode }}</span></div>
+                <div class="row"><span>Inventory</span><span class="ok">Online</span><span>{{ mode }}</span></div>
+                <div class="row"><span>Quality</span><span class="ok">Stable</span><span>{{ mode }}</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="erp-card erp-card-pad theme-summary-card">
+          <div class="erp-card-title">
+            <div>
+              <h2>Current Setting</h2>
+              <span>ค่าที่จะบันทึกเข้าบัญชีผู้ใช้</span>
+            </div>
+          </div>
+
+          <div class="theme-summary">
+            <div><span>Preset</span><strong>{{ themePresetForSave }}</strong></div>
+            <div><span>Mode</span><strong>{{ mode }}</strong></div>
+            <div><span>Accent</span><strong>{{ accent }}</strong></div>
+            <div><span>User</span><strong>{{ me?.username || '-' }}</strong></div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </div>
+</div>

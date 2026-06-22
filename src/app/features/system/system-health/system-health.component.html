@@ -1,0 +1,87 @@
+<!-- ไฟล์: src/app/features/system/system-health/system-health.component.html -->
+
+<div class="erp-master-shell system-health-page ngx-admin-feature-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-heart-pulse-fill"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">SYSTEM CENTER</span>
+          <h1>System Health</h1>
+          <p>เช็กสถานะ Backend / Actuator / Info ด้วยหน้าตาเดียวกับ My Profile</p>
+        </div>
+      </div>
+
+      <div class="erp-actions">
+        <button type="button" class="zd-btn ghost" routerLink="/dashboard">
+          <i class="bi bi-speedometer2"></i>
+          Dashboard
+        </button>
+        <button type="button" class="zd-btn ghost" routerLink="/settings/theme">
+          <i class="bi bi-palette-fill"></i>
+          Theme
+        </button>
+        <button type="button" class="zd-btn primary" (click)="load()" [disabled]="loading">
+          <i class="bi bi-arrow-clockwise"></i>
+          {{ loading ? 'Refreshing...' : 'Refresh' }}
+        </button>
+      </div>
+    </header>
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <div class="erp-card erp-card-pad system-alert" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <section class="erp-grid cols-4 admin-kpi-row health-kpi-row">
+      <div class="erp-card erp-kpi">
+        <span>Health</span>
+        <strong [class.kpi-up]="health?.status === 'UP'" [class.kpi-down]="health?.status !== 'UP'">{{ health?.status || 'UNKNOWN' }}</strong>
+      </div>
+      <div class="erp-card erp-kpi"><span>Actuator</span><strong>{{ health ? 'ONLINE' : 'WAIT' }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Info</span><strong>{{ info ? 'LOADED' : '-' }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Theme</span><strong>ERP</strong></div>
+    </section>
+
+    <section class="system-health-layout">
+      <div class="erp-card erp-card-pad health-summary-card">
+        <div class="erp-card-title">
+          <div>
+            <h2>Health Summary</h2>
+            <span>สถานะหลักจาก Spring Actuator</span>
+          </div>
+          <span class="erp-badge" [class.ok]="health?.status === 'UP'" [class.danger]="health?.status !== 'UP'">
+            {{ health?.status || 'UNKNOWN' }}
+          </span>
+        </div>
+
+        <div class="health-status-box">
+          <div class="health-icon" [class.up]="health?.status === 'UP'">
+            <i class="bi" [ngClass]="health?.status === 'UP' ? 'bi-check2-circle' : 'bi-x-circle'"></i>
+          </div>
+          <div>
+            <strong>{{ health?.status || 'UNKNOWN' }}</strong>
+            <span>Backend health endpoint</span>
+          </div>
+        </div>
+
+        <pre class="health-json compact-json">{{ json(health) }}</pre>
+      </div>
+
+      <div class="erp-card erp-card-pad health-info-card">
+        <div class="erp-card-title">
+          <div>
+            <h2>Application Info</h2>
+            <span>ข้อมูลจาก actuator/info</span>
+          </div>
+          <span class="erp-badge info">INFO</span>
+        </div>
+
+        <pre class="health-json">{{ json(info) }}</pre>
+      </div>
+    </section>
+  </div>
+</div>

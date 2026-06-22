@@ -1,0 +1,85 @@
+<!-- ไฟล์ตัวอย่าง: src/app/shared/erp-template/erp-page-template.html
+     Copy โครงนี้ไปใช้กับหน้าใหม่ทุกหน้า เพื่อให้หน้าตาไปทางเดียวกันทั้งระบบ
+-->
+
+<div class="erp-master-shell your-page-class">
+  <div class="erp-container">
+    <header class="erp-master-topbar">
+      <div class="erp-title-zone">
+        <button mat-stroked-button type="button" class="back-link" routerLink="/mainmenu">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Main Menu
+        </button>
+
+        <div class="erp-title-icon">
+          <mat-icon>apps</mat-icon>
+        </div>
+
+        <div class="erp-title-copy">
+          <h1>Page Title</h1>
+          <p>คำอธิบายหน้าจอสั้น ๆ ไม่เกิน 1 บรรทัด</p>
+        </div>
+      </div>
+
+      <div class="erp-actions">
+        <button type="button" class="erp-btn ghost">
+          <i class="bi bi-arrow-clockwise"></i>
+          Refresh
+        </button>
+        <button type="button" class="erp-btn primary">
+          <i class="bi bi-plus-lg"></i>
+          Create
+        </button>
+      </div>
+    </header>
+
+    <section class="erp-card erp-card-pad filter-card">
+      <div class="erp-search-row">
+        <div class="erp-native-field">
+          <input class="erp-input" placeholder="Search" />
+        </div>
+        <button type="button" class="erp-btn primary">
+          <i class="bi bi-search"></i>
+          Search
+        </button>
+      </div>
+    </section>
+
+    <section class="erp-grid cols-4" style="margin-top: 14px;">
+      <div class="erp-card erp-kpi"><span>Total</span><strong>0</strong></div>
+      <div class="erp-card erp-kpi"><span>Open</span><strong>0</strong></div>
+      <div class="erp-card erp-kpi"><span>Done</span><strong>0</strong></div>
+      <div class="erp-card erp-kpi"><span>Alert</span><strong>0</strong></div>
+    </section>
+
+    <section class="erp-card erp-card-pad" style="margin-top: 14px;">
+      <div class="erp-card-title">
+        <div>
+          <h2>Data List</h2>
+          <span>รายการข้อมูล</span>
+        </div>
+      </div>
+
+      <div class="erp-table-wrap">
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Name</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ERP-001</td>
+              <td>Example row</td>
+              <td><span class="erp-status success">ACTIVE</span></td>
+              <td class="text-end"><button type="button" class="erp-btn ghost">Open</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>

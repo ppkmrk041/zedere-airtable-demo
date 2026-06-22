@@ -1,0 +1,29 @@
+<div class="auth-page">
+  <section class="auth-card">
+    <div class="auth-hero">
+      <div class="hero-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <h1>Zedere Frontend</h1>
+      <p>Angular 16 template พร้อม JWT, RBAC, Theme และ Admin Console</p>
+    </div>
+
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-title"><span>WELCOME BACK</span><h2>เข้าสู่ระบบ</h2></div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" autocomplete="username">
+        <mat-error *ngIf="form.get('username')?.hasError('required')">กรุณากรอก username</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="current-password">
+        <button type="button" mat-button matSuffix (click)="hidePassword = !hidePassword">{{ hidePassword ? 'Show' : 'Hide' }}</button>
+        <mat-error *ngIf="form.get('password')?.hasError('required')">กรุณากรอกรหัสผ่าน</mat-error>
+      </mat-form-field>
+
+      <button type="submit" mat-raised-button color="primary" [disabled]="loading">{{ loading ? 'กำลังเข้าสู่ระบบ...' : 'Login' }}</button>
+      <a routerLink="/register" class="auth-link">สร้างบัญชีใหม่</a>
+    </form>
+  </section>
+</div>

@@ -1,0 +1,40 @@
+<div class="erp-master-shell dashboard-page ngx-admin-feature-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-speedometer2"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">COMMAND CENTER</span>
+          <h1>Dashboard</h1>
+          <!-- <p>ภาพรวมระบบทดสอบ Airtable โดยยังคง Shell, Login, Logout, Theme, Permission และ Profile เดิม</p> -->
+        </div>
+      </div>
+
+      <div class="erp-actions">
+        <button type="button" class="zd-btn ghost" routerLink="/settings/theme">
+          <i class="bi bi-palette-fill"></i>
+          Theme
+        </button>
+        <button type="button" class="zd-btn ghost" routerLink="/me/profile">
+          <i class="bi bi-person-circle"></i>
+          My Profile
+        </button>
+        <button type="button" class="zd-btn primary" routerLink="/product-master">
+          <i class="bi bi-table"></i>
+          เปิดข้อมูล Airtable
+        </button>
+      </div>
+    </header>
+
+    <section class="dashboard-card-grid">
+      <div class="erp-card dashboard-kpi" *ngFor="let card of cards">
+        <i class="bi" [ngClass]="card.icon"></i>
+        <span>{{ card.label }}</span>
+        <!-- <strong>{{ card.value }}</strong> -->
+      </div>
+    </section>
+
+
+  </div>
+</div>

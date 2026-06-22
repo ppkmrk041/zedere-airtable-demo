@@ -1,0 +1,11 @@
+﻿node_modules/
+dist/
+.angular/
+.vscode/
+.DS_Store
+.env
+npm-debug.log
+yarn-error.log
+
+zedere-*-backup-*/
+zedere-demo-backup-*/

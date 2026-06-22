@@ -1,0 +1,163 @@
+<div class="minimal-shell crud-page">
+  <header class="minimal-topbar">
+    <div class="brand-block">
+      <button type="button" class="btn ghost" routerLink="/mainmenu">
+        <i class="bi bi-arrow-left"></i>
+        Main Menu
+      </button>
+
+      <div>
+        <span class="eyebrow">AIRTABLE CRUD</span>
+        <h1>CRUD Test</h1>
+        <p>Read / Create / Update / Delete จาก Airtable จริง</p>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <button type="button" class="btn" (click)="reload()" [disabled]="loading || saving || deleting">
+        <i class="bi bi-arrow-clockwise"></i>
+        Reload
+      </button>
+
+      <button type="button" class="btn primary" (click)="startCreate()" [disabled]="saving || deleting">
+        <i class="bi bi-plus-lg"></i>
+        New
+      </button>
+    </div>
+  </header>
+
+  <section class="status-grid">
+    <div class="stat-card">
+      <span>Loaded</span>
+      <b>{{ records.length }}</b>
+    </div>
+    <div class="stat-card">
+      <span>Showing</span>
+      <b>{{ filteredRecords.length }}</b>
+    </div>
+    <div class="stat-card">
+      <span>Fields</span>
+      <b>{{ columns.length }}</b>
+    </div>
+    <div class="stat-card">
+      <span>Status</span>
+      <b>{{ loading ? "Loading" : "Ready" }}</b>
+    </div>
+  </section>
+
+  <section class="filter-card">
+    <input
+      class="native-input"
+      [value]="searchText"
+      (input)="onSearchInput($event)"
+      placeholder="Search TEST_ID / SECRET CODE / Record ID"
+      autocomplete="off"
+    />
+
+    <button type="button" class="btn" (click)="applyFilter()">
+      <i class="bi bi-search"></i>
+      Search
+    </button>
+
+    <button type="button" class="btn" (click)="loadNext()" [disabled]="!nextOffset || loading">
+      <i class="bi bi-chevron-right"></i>
+      Next Page
+    </button>
+  </section>
+
+  <div class="alert error" *ngIf="errorMessage">
+    <i class="bi bi-exclamation-triangle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <div class="alert success" *ngIf="successMessage">
+    <i class="bi bi-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <section class="crud-grid">
+    <div class="panel table-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Airtable Records</h2>
+          <span>ข้อมูลตัวอย่าง: TEST_ID / SECRET CODE</span>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!loading && filteredRecords.length === 0">
+        <i class="bi bi-inbox"></i>
+        <b>No records</b>
+        <span>กด New แล้ว Save เพื่อสร้างข้อมูล</span>
+      </div>
+
+      <div class="table-wrap" *ngIf="filteredRecords.length > 0">
+        <table class="crud-table">
+          <thead>
+            <tr>
+              <th>Record ID</th>
+              <th>Created</th>
+              <th *ngFor="let column of columns; trackBy: trackByColumn">{{ column }}</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              *ngFor="let record of filteredRecords; trackBy: trackByRecordId"
+              (click)="selectRecord(record)"
+              [class.active]="selectedRecord?.id === record.id"
+            >
+              <td><span class="record-pill">{{ record.id }}</span></td>
+              <td>{{ record.createdTime }}</td>
+              <td *ngFor="let column of columns; trackBy: trackByColumn">
+                {{ valueToText(record.fields[column]) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="panel editor-panel">
+      <div class="panel-head">
+        <div>
+          <h2>{{ editorMode === "edit" ? "Update Record" : "Create Record" }}</h2>
+          <span *ngIf="selectedRecord">Record ID: {{ selectedRecord.id }}</span>
+          <span *ngIf="!selectedRecord">New Airtable record</span>
+        </div>
+      </div>
+
+      <label>Fields JSON</label>
+      <textarea
+        class="json-editor"
+        [value]="fieldsJson"
+        (input)="onFieldsInput($event)"
+        spellcheck="false"
+      ></textarea>
+
+      <div class="editor-actions">
+        <button type="button" class="btn primary" (click)="save()" [disabled]="saving || deleting">
+          <i class="bi bi-save"></i>
+          {{ saving ? "Saving..." : "Save" }}
+        </button>
+
+        <button
+          type="button"
+          class="btn danger"
+          (click)="deleteSelected()"
+          [disabled]="!selectedRecord || saving || deleting"
+        >
+          <i class="bi bi-trash"></i>
+          {{ deleting ? "Deleting..." : "Delete" }}
+        </button>
+      </div>
+
+      <div class="help-box">
+        <b>CRUD Flow</b>
+        <span>Read: Reload</span>
+        <span>Create: New + Save</span>
+        <span>Update: Select row + edit JSON + Save</span>
+        <span>Delete: Select row + Delete</span>
+      </div>
+    </aside>
+  </section>
+</div>

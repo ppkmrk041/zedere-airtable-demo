@@ -1,0 +1,82 @@
+<div class="erp-master-shell mini-board-page">
+  <header class="erp-master-topbar mini-board-topbar">
+    <div class="erp-title-zone">
+      <button type="button" class="zd-btn ghost" (click)="openWorks()">
+        <i class="bi bi-arrow-left"></i>
+        Works
+      </button>
+
+      <div class="erp-title-icon">
+        <i class="bi bi-columns-gap"></i>
+      </div>
+
+      <div class="erp-title-copy">
+        <span class="erp-eyebrow">PRODUCTION FLOW BOARD</span>
+        <h1>Mini Production Board</h1>
+        <p>มองภาพรวมว่าใบงานผลิตอยู่ขั้นตอนไหน ตั้งแต่ Material Check ถึง Packing</p>
+      </div>
+    </div>
+
+    <div class="erp-actions">
+      <button type="button" class="zd-btn soft" (click)="load()" [disabled]="loading">
+        <i class="bi bi-arrow-clockwise"></i>
+        Refresh
+      </button>
+      <button type="button" class="zd-btn primary" routerLink="/production/mini-works">
+        <i class="bi bi-plus-lg"></i>
+        New / List
+      </button>
+    </div>
+  </header>
+
+  <div class="erp-container">
+    <div *ngIf="errorMessage" class="erp-alert danger">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      {{ errorMessage }}
+    </div>
+
+    <section class="board-summary">
+      <article class="erp-card summary-card" *ngFor="let col of columns; trackBy: trackColumn">
+        <span>{{ col.stepName }}</span>
+        <strong>{{ col.total }}</strong>
+        <small>{{ col.stepCode }}</small>
+      </article>
+    </section>
+
+    <div *ngIf="loading" class="erp-card loading-card">
+      <i class="bi bi-hourglass-split"></i>
+      Loading board...
+    </div>
+
+    <section class="board-grid" *ngIf="!loading">
+      <article class="board-column" *ngFor="let col of columns; trackBy: trackColumn">
+        <header>
+          <div>
+            <strong>{{ col.stepName }}</strong>
+            <small>{{ col.stepCode }}</small>
+          </div>
+          <span>{{ col.total }}</span>
+        </header>
+
+        <div class="work-stack">
+          <button type="button" class="work-card" *ngFor="let work of col.works; trackBy: trackWork" (click)="openWork(work)">
+            <div class="work-head">
+              <strong>{{ work.workNo }}</strong>
+              <span class="erp-status" [ngClass]="statusClass(work.status)">{{ work.status }}</span>
+            </div>
+            <p>{{ work.productName }}</p>
+            <div class="work-meta">
+              <span>{{ work.qty | number:'1.0-3' }} {{ work.unit }}</span>
+              <span>{{ work.lineCode || '-' }}</span>
+              <span>{{ work.dueDate || '-' }}</span>
+            </div>
+          </button>
+
+          <div *ngIf="!col.works || col.works.length === 0" class="empty-column">
+            ไม่มีงานในขั้นตอนนี้
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</div>

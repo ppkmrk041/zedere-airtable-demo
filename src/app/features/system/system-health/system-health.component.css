@@ -1,0 +1,100 @@
+/* ไฟล์: src/app/features/system/system-health/system-health.component.css */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.system-health-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.82fr) minmax(0, 1.18fr);
+  gap: var(--erp-grid-gap, 10px);
+  align-items: stretch;
+}
+
+.system-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--app-danger);
+  background: rgba(220, 38, 38, 0.07);
+  border-color: rgba(220, 38, 38, 0.22);
+  font-weight: 700;
+}
+
+.health-status-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--erp-radius-lg, 16px);
+  background: var(--app-surface-2);
+}
+
+.health-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  color: var(--app-danger);
+  background: rgba(220, 38, 38, 0.10);
+  font-size: 1.35rem;
+}
+
+.health-icon.up {
+  color: var(--app-success);
+  background: rgba(22, 163, 74, 0.11);
+}
+
+.health-status-box strong {
+  display: block;
+  color: var(--app-text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.health-status-box span {
+  display: block;
+  color: var(--app-text-soft);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.health-json {
+  width: 100%;
+  min-height: 260px;
+  max-height: calc(100dvh - 285px);
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  border: 1px solid var(--app-border);
+  border-radius: var(--erp-radius-lg, 16px);
+  color: var(--app-text);
+  background: var(--app-surface-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.compact-json {
+  min-height: 170px;
+}
+
+.kpi-up { color: var(--app-success) !important; }
+.kpi-down { color: var(--app-danger) !important; }
+
+@media (max-width: 1100px) {
+  .system-health-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .health-json {
+    max-height: none;
+  }
+}

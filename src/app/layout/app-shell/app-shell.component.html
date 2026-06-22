@@ -1,0 +1,108 @@
+<!-- ไฟล์: src/app/layout/app-shell/app-shell.component.html -->
+
+<div class="ngx-erp-shell" [class.sidebar-open]="sidebarOpen" [class.sidebar-collapsed]="sidebarCollapsed">
+  <div class="mobile-backdrop" (click)="closeSidebar()"></div>
+
+  <aside class="app-shell-sidebar no-print">
+    <div class="brand-block">
+      <button type="button" class="mobile-close" (click)="closeSidebar()" aria-label="Close menu">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <div class="brand-logo-frame">
+        <img
+          class="brand-logo"
+          src="assets/pic/logo-01.png"
+          alt="Zedere ERP Logo"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+      <div class="brand-copy">
+        <strong>ZEDERE</strong>
+        <!-- <span>ngx-admin workspace</span> -->
+      </div>
+    </div>
+
+    <!-- <div class="user-card">
+      <div class="avatar">{{ userInitial }}</div>
+      <div class="user-copy">
+        <strong>{{ displayName }}</strong>
+        <span>{{ userSubTitle }}</span>
+      </div>
+    </div> -->
+
+    <div class="sidebar-search">
+      <i class="bi bi-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        autocomplete="off"
+        placeholder="Search menu"
+      />
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <ng-container *ngFor="let section of sections">
+        <section class="nav-section" *ngIf="hasSection(section.key)">
+          <div class="section-label">{{ section.label }}</div>
+
+          <a
+            *ngFor="let item of itemsBySection(section.key)"
+            class="nav-link"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/mainmenu' }"
+            (click)="openRoute()"
+          >
+            <i class="bi" [ngClass]="item.icon"></i>
+            <span>
+              <strong>{{ item.label }}</strong>
+              <small>{{ item.subtitle }}</small>
+            </span>
+          </a>
+        </section>
+      </ng-container>
+    </nav>
+
+   
+
+    <button type="button" class="logout-btn" (click)="logout()" [disabled]="loggingOut">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>{{ loggingOut ? 'Logging out...' : 'Logout' }}</span>
+    </button>
+  </aside>
+
+  <section class="app-shell-main">
+    <header class="app-shell-topbar no-print">
+      <div class="topbar-left">
+        <button type="button" class="icon-btn mobile-menu" (click)="toggleSidebar()" aria-label="Open menu">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <button type="button" class="icon-btn collapse-btn" (click)="toggleCollapse()" aria-label="Collapse sidebar">
+          <i class="bi" [ngClass]="sidebarCollapsed ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar-inset-reverse'"></i>
+        </button>
+
+        <div class="topbar-title">
+         
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button type="button" class="topbar-chip" routerLink="/mainmenu">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Main Menu</span>
+        </button>
+        <button type="button" class="topbar-chip" routerLink="me/profile">
+          <i class="bi bi-person-circle"></i>
+          <span>{{ displayName }}</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="router-stage">
+      <router-outlet></router-outlet>
+    </main>
+  </section>
+</div>

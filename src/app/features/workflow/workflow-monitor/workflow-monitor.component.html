@@ -1,0 +1,80 @@
+<div class="erp-master-shell workflow-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-activity"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">ZEDERE WORKFLOW</span>
+          <h1>Workflow Monitor</h1>
+          <p>ติดตามเอกสารทั้งหมดว่าอยู่ Step ไหน สถานะอะไร และติดอยู่ที่ใคร</p>
+        </div>
+      </div>
+      <div class="erp-actions">
+        <button type="button" class="zd-btn soft" (click)="loadAll()" [disabled]="loading"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      </div>
+    </header>
+
+    <section class="erp-grid kpi-grid">
+      <div class="erp-card erp-kpi-card erp-card-orb"><span>Pending</span><strong>{{ pending.length | number }}</strong></div>
+      <div class="erp-card erp-kpi-card erp-card-orb"><span>My Requests</span><strong>{{ myRequests.length | number }}</strong></div>
+      <div class="erp-card erp-kpi-card erp-card-orb"><span>Total Loaded</span><strong>{{ totalCount | number }}</strong></div>
+      <div class="erp-card erp-kpi-card erp-card-orb"><span>Status</span><strong>{{ loading ? 'Loading' : 'Ready' }}</strong></div>
+    </section>
+
+    <div *ngIf="errorMessage" class="alert error"><i class="bi bi-exclamation-triangle"></i>{{ errorMessage }}</div>
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <section class="erp-card erp-card-pad monitor-card erp-card-orb">
+      <div class="card-head">
+        <div>
+          <span class="eyebrow">PENDING DOCUMENTS</span>
+          <h2>เอกสารที่ยังไม่จบ Flow</h2>
+        </div>
+        <span class="mini-badge">PENDING</span>
+      </div>
+      <div class="table-wrap">
+        <table class="erp-table">
+          <thead><tr><th>Document</th><th>Workflow</th><th>Current Step</th><th>Requester</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let row of pending">
+              <td><button type="button" class="link-btn" (click)="open(row)">{{ row.documentNo }}</button><small>{{ row.documentTitle || row.documentType }}</small></td>
+              <td><span class="main-text">{{ row.workflowCode }}</span><small>{{ row.documentType }}</small></td>
+              <td><span class="main-text">{{ row.currentStepName || '-' }}</span><small>{{ row.currentStepCode || '-' }}</small></td>
+              <td><span class="main-text">{{ row.requesterName || '-' }}</span><small>{{ row.createdAt | date:'yyyy-MM-dd HH:mm' }}</small></td>
+              <td><span [class]="statusClass(row.status)">{{ row.status }}</span></td>
+              <td class="text-end"><button type="button" class="mini-btn" (click)="open(row)"><i class="bi bi-eye"></i></button></td>
+            </tr>
+            <tr *ngIf="!loadingPending && pending.length === 0"><td colspan="6" class="empty-cell">ไม่มีเอกสาร Pending</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="erp-card erp-card-pad monitor-card erp-card-orb" style="margin-top: 14px;">
+      <div class="card-head">
+        <div>
+          <span class="eyebrow">MY REQUESTS</span>
+          <h2>เอกสารที่ฉันเปิดหรือเกี่ยวข้อง</h2>
+        </div>
+        <span class="mini-badge">REQUEST</span>
+      </div>
+      <div class="table-wrap">
+        <table class="erp-table">
+          <thead><tr><th>Document</th><th>Workflow</th><th>Current Step</th><th>Submitted</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let row of myRequests">
+              <td><button type="button" class="link-btn" (click)="open(row)">{{ row.documentNo }}</button><small>{{ row.documentTitle || row.documentType }}</small></td>
+              <td><span class="main-text">{{ row.workflowCode }}</span><small>{{ row.documentType }}</small></td>
+              <td><span class="main-text">{{ row.currentStepName || '-' }}</span><small>{{ row.currentStepCode || '-' }}</small></td>
+              <td><span class="main-text">{{ row.submittedAt ? (row.submittedAt | date:'yyyy-MM-dd HH:mm') : '-' }}</span><small>{{ row.createdAt | date:'yyyy-MM-dd HH:mm' }}</small></td>
+              <td><span [class]="statusClass(row.status)">{{ row.status }}</span></td>
+              <td class="text-end"><button type="button" class="mini-btn" (click)="open(row)"><i class="bi bi-eye"></i></button></td>
+            </tr>
+            <tr *ngIf="!loadingMine && myRequests.length === 0"><td colspan="6" class="empty-cell">ยังไม่มีรายการ My Requests</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>

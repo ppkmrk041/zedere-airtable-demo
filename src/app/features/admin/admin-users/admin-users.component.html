@@ -1,0 +1,204 @@
+<!-- ไฟล์: src/app/features/admin/admin-users/admin-users.component.html -->
+
+<div class="erp-master-shell admin-console-page user-management-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link"><i class="bi bi-arrow-left"></i> Main Menu</a>
+        <div class="erp-title-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="erp-title-copy">
+          <span class="eyebrow">ADMINISTRATION</span>
+          <h1>User Management</h1>
+          <p>จัดการผู้ใช้ บทบาท สถานะบัญชี และ Theme ส่วนตัว</p>
+        </div>
+      </div>
+
+      <div class="erp-actions">
+        <button type="button" class="zd-btn ghost" routerLink="/admin/permissions">
+          <i class="bi bi-shield-lock-fill"></i>
+          Permission Management
+        </button>
+        <button type="button" class="zd-btn primary" (click)="load(0)" [disabled]="loading">
+          <i class="bi bi-search"></i>
+          {{ loading ? 'Loading...' : 'Search' }}
+        </button>
+      </div>
+    </header>
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <section class="erp-grid cols-4 admin-kpi-row">
+      <div class="erp-card erp-kpi"><span>Total</span><strong>{{ total }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Visible</span><strong>{{ users.length }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Selected</span><strong>{{ selected?.username || '-' }}</strong></div>
+      <div class="erp-card erp-kpi"><span>Roles</span><strong>{{ roles.length }}</strong></div>
+    </section>
+
+    <section class="erp-card erp-card-pad admin-filter-card" [formGroup]="filterForm">
+      <div class="erp-grid cols-4">
+        <mat-form-field appearance="outline">
+          <mat-label>Search</mat-label>
+          <input matInput formControlName="q" placeholder="username / name / email" (keyup.enter)="load(0)" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role">
+            <mat-option value="">ทั้งหมด</mat-option>
+            <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="enabled">
+            <mat-option value="">ทั้งหมด</mat-option>
+            <mat-option value="true">Enabled</mat-option>
+            <mat-option value="false">Disabled</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="filter-command">
+          <button type="button" class="zd-btn primary w-100" (click)="load(0)" [disabled]="loading">
+            <i class="bi bi-funnel-fill"></i>
+            Apply Filter
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-split-grid">
+      <div class="erp-card erp-card-pad admin-list-card">
+        <div class="erp-card-title">
+          <div>
+            <h2>Users</h2>
+            <span>กดแถวเพื่อแก้ไขด้านขวา</span>
+          </div>
+          <span class="erp-badge info">{{ users.length }} rows</span>
+        </div>
+
+        <div class="erp-table-wrap">
+          <table class="erp-table admin-table compact-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Lock</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of users" (click)="select(row)" [class.active-row]="selected?.id === row.id">
+                <td>
+                  <div class="strong-cell">
+                    <span class="mini-avatar">{{ row.username.substring(0, 1).toUpperCase() }}</span>
+                    <strong>{{ row.username }}</strong>
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ row.fullName }}</strong>
+                  <small>{{ row.email }}</small>
+                </td>
+                <td><span class="erp-chip role-chip">{{ row.role }}</span></td>
+                <td>
+                  <span class="erp-chip" [class.ok]="row.enabled" [class.danger]="!row.enabled">
+                    {{ row.enabled ? 'Enabled' : 'Disabled' }}
+                  </span>
+                </td>
+                <td><small>{{ row.lockUntil || '-' }}</small></td>
+                <td class="row-actions text-end">
+                  <button class="mini-action" type="button" (click)="select(row); $event.stopPropagation()"><i class="bi bi-pencil-square"></i></button>
+                  <button class="mini-action" type="button" (click)="resetPassword(row); $event.stopPropagation()" [disabled]="!canReset()"><i class="bi bi-key"></i></button>
+                  <button class="mini-action" type="button" (click)="lock(row); $event.stopPropagation()" [disabled]="!canLock()"><i class="bi bi-lock"></i></button>
+                  <button class="mini-action" type="button" (click)="unlock(row); $event.stopPropagation()" [disabled]="!canUnlock()"><i class="bi bi-unlock"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="empty-state" *ngIf="!loading && users.length === 0">
+            ไม่พบผู้ใช้ตามเงื่อนไขที่ค้นหา
+          </div>
+        </div>
+
+        <mat-paginator
+          [length]="total"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[10, 20, 50]"
+          (page)="pageIndex = $event.pageIndex; pageSize = $event.pageSize; load(pageIndex)"
+        ></mat-paginator>
+      </div>
+
+      <form class="erp-card erp-card-pad admin-edit-card" [formGroup]="editForm" (ngSubmit)="save()">
+        <div class="erp-card-title">
+          <div>
+            <h2>User Detail</h2>
+            <span>{{ selected ? selected.username : 'เลือกผู้ใช้จากตาราง' }}</span>
+          </div>
+          <span class="erp-badge" *ngIf="selected">ID {{ selected.id }}</span>
+        </div>
+
+        <div class="selected-user-panel" *ngIf="selected; else noSelectedUser">
+          <div class="big-avatar">{{ selected.username.substring(0, 1).toUpperCase() }}</div>
+          <div>
+            <strong>{{ selected.fullName }}</strong>
+            <span>{{ selected.email }}</span>
+          </div>
+        </div>
+
+        <ng-template #noSelectedUser>
+          <div class="empty-panel">เลือกผู้ใช้ก่อนแก้ไขข้อมูล</div>
+        </ng-template>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="fullName" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" />
+        </mat-form-field>
+
+        <div class="erp-grid cols-2 compact-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Role</mat-label>
+            <mat-select formControlName="role">
+              <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="enabled">
+              <mat-option [value]="true">Enabled</mat-option>
+              <mat-option [value]="false">Disabled</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Theme Preset</mat-label>
+          <mat-select formControlName="themePreset">
+            <mat-option *ngFor="let option of themeOptions" [value]="option.value">{{ option.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Accent Color</mat-label>
+          <input matInput formControlName="themeAccentColor" placeholder="#3366FF" />
+        </mat-form-field>
+
+        <div class="form-actions sticky-actions">
+          <button type="submit" class="zd-btn primary" [disabled]="saving || !selected || !canEdit()">
+            <i class="bi bi-save2-fill"></i>
+            {{ saving ? 'Saving...' : 'Save User' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>

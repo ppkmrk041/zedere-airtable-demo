@@ -1,0 +1,386 @@
+<div class="erp-master-shell airtable-data-page ngx-admin-feature-page">
+  <div class="erp-container">
+    <header class="erp-master-topbar admin-console-hero">
+      <div class="erp-title-zone">
+        <a routerLink="/mainmenu" class="back-link">
+          <i class="bi bi-arrow-left"></i>
+          Main Menu
+        </a>
+
+        <div class="erp-title-icon">
+          <i class="bi bi-table"></i>
+        </div>
+
+        <div class="erp-title-copy">
+          <span class="eyebrow">AIRTABLE DATA CENTER</span>
+          <h1>ข้อมูลจาก Airtable</h1>
+          <p>ตั้งค่าการเชื่อมต่อ แล้วจัดการข้อมูล TEST_ID และ SECRET CODE</p>
+        </div>
+      </div>
+
+      <div class="erp-actions page-actions">
+        <button type="button" class="zd-btn soft" routerLink="/settings/theme">
+          <i class="bi bi-palette-fill"></i>
+          Theme
+        </button>
+
+        <button type="button" class="zd-btn soft" (click)="reload()" [disabled]="loading || saving || deleting">
+          <i class="bi bi-arrow-clockwise"></i>
+          {{ loading ? "กำลังโหลด" : "โหลดข้อมูล" }}
+        </button>
+
+        <button type="button" class="zd-btn primary" (click)="openCreate()" [disabled]="saving || deleting">
+          <i class="bi bi-plus-lg"></i>
+          เพิ่มข้อมูล
+        </button>
+      </div>
+    </header>
+
+    <section class="airtable-page-grid">
+      <section class="erp-card erp-card-pad">
+        <div class="card-head">
+          <div>
+            <h2>ตั้งค่าการเชื่อมต่อ</h2>
+            <!-- <span>กรอกข้อมูล Airtable แล้วกดบันทึก ระบบจะจำไว้ในเครื่องนี้</span> -->
+          </div>
+        </div>
+
+        <div class="connection-grid">
+          <div class="zd-field">
+            <label>ลิงก์ระบบ</label>
+            <input
+              class="zd-input"
+              [value]="settings.systemLink"
+              (input)="onSettingInput('systemLink', $event)"
+              placeholder="https://api.airtable.com"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="zd-field">
+            <label>Base ID</label>
+            <input
+              class="zd-input"
+              [value]="settings.baseId"
+              (input)="onSettingInput('baseId', $event)"
+              placeholder="เช่น appXXXXXXXXXXXXXX"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="zd-field">
+            <label>Table ID</label>
+            <input
+              class="zd-input"
+              [value]="settings.tableId"
+              (input)="onSettingInput('tableId', $event)"
+              placeholder="เช่น tblXXXXXXXXXXXXXX"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="zd-field">
+            <label>Token</label>
+            <input
+              class="zd-input"
+              type="password"
+              [value]="settings.token"
+              (input)="onSettingInput('token', $event)"
+              placeholder="วาง Airtable PAT Token"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="connection-actions">
+            <button type="button" class="zd-btn primary" (click)="saveSettings()">
+              <i class="bi bi-save"></i>
+              บันทึก
+            </button>
+
+            <button type="button" class="zd-btn danger" (click)="clearSettings()">
+              <i class="bi bi-trash"></i>
+              ล้าง
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint-preview">
+          Endpoint ที่จะเรียกใช้: {{ endpointPreview }}
+        </div>
+      </section>
+
+      <section class="airtable-summary-grid">
+        <div class="erp-card erp-kpi">
+          <span>ข้อมูลที่โหลด</span>
+          <strong>{{ records.length }}</strong>
+        </div>
+
+        <div class="erp-card erp-kpi">
+          <span>ข้อมูลที่แสดง</span>
+          <strong>{{ filteredRecords.length }}</strong>
+        </div>
+
+        <!-- <div class="erp-card erp-kpi">
+          <span>Field ที่ใช้งาน</span>
+          <strong>2</strong>
+        </div> -->
+
+        <div class="erp-card erp-kpi">
+          <span>สถานะ</span>
+          <strong>{{ loading ? "Loading" : "Ready" }}</strong>
+        </div>
+      </section>
+
+      <section class="erp-card erp-card-pad">
+        <div class="list-toolbar">
+          <div class="zd-field" style="flex: 1">
+            <label>ค้นหาข้อมูล</label>
+            <input
+              class="zd-input"
+              [value]="searchText"
+              (input)="onSearchInput($event)"
+              placeholder="ค้นหาจาก TEST_ID, SECRET CODE หรือ Record ID"
+              autocomplete="off"
+            />
+          </div>
+
+          <button type="button" class="zd-btn soft" (click)="applyFilter()">
+            <i class="bi bi-search"></i>
+            ค้นหา
+          </button>
+
+          <button type="button" class="zd-btn soft" (click)="loadNext()" [disabled]="!nextOffset || loading">
+            <i class="bi bi-chevron-right"></i>
+            หน้าถัดไป
+          </button>
+        </div>
+      </section>
+
+      <!-- <div class="alert error" *ngIf="errorMessage">
+        <i class="bi bi-exclamation-triangle"></i>
+        {{ errorMessage }}
+      </div> -->
+
+      <div class="alert success" *ngIf="successMessage">
+        <i class="bi bi-check-circle"></i>
+        {{ successMessage }}
+      </div>
+
+      <section class="airtable-list-grid">
+        <div class="erp-card erp-card-pad">
+          <div class="card-head">
+            <div>
+              <h2>รายการข้อมูล</h2>
+              <!-- <span>ตารางนี้ล็อกหัวข้อไว้เฉพาะ TEST_ID และ SECRET CODE</span> -->
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="!loading && filteredRecords.length === 0">
+            <i class="bi bi-inbox"></i>
+            <b>ยังไม่มีข้อมูลให้แสดง</b>
+            <span>กด “เพิ่มข้อมูล” หรือกด “โหลดข้อมูล” หลังตั้งค่าการเชื่อมต่อ</span>
+          </div>
+
+          <div class="table-wrap" *ngIf="filteredRecords.length > 0">
+            <table class="airtable-table">
+              <thead>
+                <tr>
+                  <th>Record ID</th>
+                  <th>TEST_ID</th>
+                  <th>SECRET CODE</th>
+                  <th>วันที่สร้าง</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr
+                  *ngFor="let record of filteredRecords; trackBy: trackByRecordId"
+                  (click)="selectRecord(record)"
+                  [class.active]="selectedRecord?.id === record.id"
+                >
+                  <td>
+                    <span class="record-pill">{{ record.id }}</span>
+                  </td>
+
+                  <td>{{ getField(record, "TEST_ID") || "-" }}</td>
+
+                  <td>{{ getField(record, "SECRET CODE") || "-" }}</td>
+
+                  <td>{{ record.createdTime || "-" }}</td>
+
+                  <td>
+                    <div class="record-actions" (click)="$event.stopPropagation()">
+                      <button type="button" class="zd-btn soft" (click)="openEdit(record)">
+                        <i class="bi bi-pencil-square"></i>
+                        แก้ไข
+                      </button>
+
+                      <button type="button" class="zd-btn danger" (click)="openDelete(record)">
+                        <i class="bi bi-trash"></i>
+                        ลบ
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside class="erp-card erp-card-pad">
+          <div class="card-head">
+            <div>
+              <h2>รายละเอียดที่เลือก</h2>
+              <span>แสดงเฉพาะข้อมูลที่ใช้จริง</span>
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="!selectedRecord">
+            <i class="bi bi-hand-index-thumb"></i>
+            <b>ยังไม่ได้เลือกข้อมูล</b>
+            <span>เลือกแถวจากตารางเพื่อดูรายละเอียด</span>
+          </div>
+
+          <div class="side-detail" *ngIf="selectedRecord">
+            <div class="detail-row">
+              <span>Record ID</span>
+              <strong>{{ selectedRecord.id }}</strong>
+            </div>
+
+            <div class="detail-row">
+              <span>TEST_ID</span>
+              <strong>{{ getField(selectedRecord, "TEST_ID") || "-" }}</strong>
+            </div>
+
+            <div class="detail-row">
+              <span>SECRET CODE</span>
+              <strong>{{ getField(selectedRecord, "SECRET CODE") || "-" }}</strong>
+            </div>
+
+            <div class="detail-row">
+              <span>Created Time</span>
+              <strong>{{ selectedRecord.createdTime || "-" }}</strong>
+            </div>
+
+            <div class="record-actions">
+              <button type="button" class="zd-btn primary" (click)="openEdit(selectedRecord)">
+                <i class="bi bi-pencil-square"></i>
+                แก้ไขข้อมูลนี้
+              </button>
+
+              <button type="button" class="zd-btn danger" (click)="openDelete(selectedRecord)">
+                <i class="bi bi-trash"></i>
+                ลบ
+              </button>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </section>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="modalMode !== 'none'" (click)="closeModal()">
+  <section class="zd-modal" [class.small]="modalMode === 'delete'" (click)="$event.stopPropagation()">
+    <header class="modal-head">
+      <div>
+        <span class="zd-eyebrow">AIRTABLE RECORD</span>
+        <h2>{{ modalTitle }}</h2>
+
+        <p class="muted-text" *ngIf="modalMode === 'create'">
+          ระบบสร้าง TEST_ID ให้อัตโนมัติ และตรวจไม่ให้ซ้ำจากข้อมูลที่โหลดอยู่
+        </p>
+
+        <p class="muted-text" *ngIf="modalMode === 'edit'">
+          แก้ไขได้เฉพาะ SECRET CODE ส่วน TEST_ID จะล็อกไว้
+        </p>
+
+        <p class="muted-text" *ngIf="modalMode === 'delete'">
+          ตรวจสอบข้อมูลก่อนยืนยันการลบ
+        </p>
+      </div>
+
+      <button type="button" class="icon-btn" (click)="closeModal()" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <div class="modal-body" *ngIf="modalMode !== 'delete'">
+      <div class="modal-field-grid">
+        <div class="zd-field">
+          <label>TEST_ID</label>
+          <input
+            class="zd-input"
+            [value]="testIdValue"
+            readonly
+            autocomplete="off"
+          />
+          <span class="help-text">
+            ระบบล็อกค่านี้ไว้ และสร้างเลขถัดไปให้อัตโนมัติ
+          </span>
+        </div>
+
+        <div class="zd-field">
+          <label>SECRET CODE</label>
+          <input
+            class="zd-input"
+            [value]="secretCodeValue"
+            (input)="onSecretCodeInput($event)"
+            placeholder="กรอกข้อความที่ต้องการบันทึก"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-body" *ngIf="modalMode === 'delete'">
+      <div class="delete-preview">
+        <div class="detail-row">
+          <span>Record ID</span>
+          <strong>{{ modalRecord?.id }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>TEST_ID</span>
+          <strong>{{ testIdValue || "-" }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>SECRET CODE</span>
+          <strong>{{ secretCodeValue || "-" }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <footer class="modal-foot">
+      <button type="button" class="zd-btn soft" (click)="closeModal()" [disabled]="saving || deleting">
+        ยกเลิก
+      </button>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="zd-btn primary"
+          *ngIf="modalMode !== 'delete'"
+          (click)="saveRecord()"
+          [disabled]="saving"
+        >
+          <i class="bi bi-save"></i>
+          {{ saving ? "กำลังบันทึก" : "บันทึกข้อมูล" }}
+        </button>
+
+        <button
+          type="button"
+          class="zd-btn danger"
+          *ngIf="modalMode === 'delete'"
+          (click)="confirmDelete()"
+          [disabled]="deleting"
+        >
+          <i class="bi bi-trash"></i>
+          {{ deleting ? "กำลังลบ" : "ยืนยันลบ" }}
+        </button>
+      </div>
+    </footer>
+  </section>
+</div>
